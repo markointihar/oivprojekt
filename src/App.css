@@ -3,9 +3,19 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  width: 80%;
 }
 h1 {
   color: #eeeee4;
+}
+h2 {
+  color: #eeeee4;
+}
+div{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 img {
@@ -24,13 +34,17 @@ button:hover{
 }
 .rezultat {
   border-radius: 20px;
-  width: 20%;
+  width: 90%;
   display: flex;
   align-items: center;
   flex-direction: column;
+  padding-left: 20px;
+  justify-content: center;
+  margin-bottom: 1em;
 }
 .good {
   background-color: #abdbe3;
+
 }
 .bad {
   background-color: #e28743;
@@ -53,6 +67,26 @@ button:hover{
   margin-right: 5px;
   padding-left: 30px;
   font-size: 20px;
+}
+
+.spinner {
+  
+  display: none;
+}
+.spinner.visible {
+  display: block;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #7983ff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 body {

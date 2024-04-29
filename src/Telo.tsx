@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as CryptoJS from 'crypto-js';
+import Form from './Form';
+import Rezultat from './Rezultat';
+import Pomanjkljivosti from './Pomanjkljivosti';
 
 export default function Telo() {
   const [geslo, setGeslo] = useState("");
   const [rezultat, setRezultat] = useState("");
   const [rezultatSeznama, setRezultatSeznama] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  
 
   async function submitHandler(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -26,7 +32,7 @@ export default function Telo() {
         const count = found.split(':')[1];
         setRezultat(`Geslo je bilo najdeno v bazi podatkov ${count} krat.`);
       } else {
-        setRezultat('Geslo ni bilo najdeno v bazi podatkov.');
+        setRezultat('Geslo ni bilo pwned.');
       }
     } catch (error) {
       console.error('Napaka:', error);
@@ -34,21 +40,26 @@ export default function Telo() {
     preveriSeznamGesel();
     setGeslo("");
   }
-  function preveriSeznamGesel(){
+
+  function preveriSeznamGesel() {
+    setLoading(true);
     fetch('http://localhost:3001/preveri-geslo', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ geslo: geslo }),
-  })
-  .then(response => response.json())
-  .then(data => {
-    setRezultatSeznama(data.message);
-  })
-  .catch(error => console.error('Napaka:', error));
-  console.log(rezultatSeznama);
-  } 
+    })
+    .then(response => response.json())
+    .then(data => {
+      setRezultatSeznama(data.message);
+      setLoading(false);
+    })
+    .catch(error => {
+      console.error('Napaka:', error);
+      setLoading(false);
+    });
+  }
 
   const [malaCrka, setMalaCrka] = useState(false);
   const [velikaCrka, setVelikaCrka] = useState(false);
@@ -84,61 +95,13 @@ export default function Telo() {
   return (
     <div className={"container"}>
       <h1>Geslo checker</h1>
-      <div >
-        <form onSubmit={submitHandler} className={'forma'}>
-          <input className={"polje"} type="password" id="geslo" value={geslo} onChange={handleGesloChange} />
-          <button type="submit">
-            <img src={require("./isci.png")}></img>
-          </button>
-        </form>
+      <div className='container'>
+        <h2>Vpišite geslo in preverite če je vaše geslo bilo pwned in ali je vaše geslo v seznamu kompromiziranih gesel</h2>
       </div>
-      
-      <div className={`rezultat ${rezultat === 'Geslo ni bilo najdeno v bazi podatkov.' ? 'good' : 'bad'}`}>
-      {rezultat && (
-        <div>
-          <h2>Rezultat:</h2>
-          <p>{rezultat}</p>
-        </div>
-      )}
-      </div>
-
-      <div className={`rezultat ${rezultatSeznama === 'Geslo je na seznamu pogostih gesel. Prosim izberite varnejše geslo.' ? 'bad' : 'good'}`}>
-      {rezultatSeznama && (
-        <div>
-          <h2>rezultatSeznama:</h2>
-          <p>{rezultatSeznama}</p>
-        </div>
-      )}
-      </div>
-
-
-      <div className={`rezultat ${stanje}`}>
-      {!stevilka && geslo.length > 0 && (
-        <div>
-          <p>Geslo potrebuje številko</p>
-        </div>
-      )}
-      {!malaCrka && geslo.length > 0 &&(
-        <div>
-          <p>Geslo potrebuje malo črko.</p>
-        </div>
-      )}
-      {!velikaCrka && geslo.length > 0 &&(
-        <div>
-          <p>Geslo potrebuje veliko črko</p>
-        </div>
-      )}
-      {!znak && geslo.length > 0 &&(
-        <div>
-          <p>Geslo potrebje poseben znak</p>
-        </div>
-      )}
-      {!dovoljZnakov && geslo.length > 0 &&(
-        <div>
-          <p>Geslo more imeti vsaj 12 znakov</p>
-        </div>
-      )}
-      </div>
+      <Form handleGesloChange={handleGesloChange} submitHandler={submitHandler} geslo={geslo} />
+      <Rezultat rezultat={rezultat} rezultatSeznama={rezultatSeznama} loading={loading} />
+      <div className={`spinner ${loading ? 'visible' : ''}`}></div>
+      <Pomanjkljivosti geslo={geslo} stanje={stanje} stevilka={stevilka} malaCrka={malaCrka} velikaCrka={velikaCrka} znak={znak} dovoljZnakov={dovoljZnakov} />
     </div>
   );
 }
